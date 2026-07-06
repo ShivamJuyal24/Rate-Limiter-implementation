@@ -1,11 +1,23 @@
-import { FixedWindowRateLimiter } from "./implementations/FixedWindowRateLimiter.js";
+import { SlidingWindowRateLimiter } from "./implementations/SlidingWindowRateLimiter.js";
 
-const limiter = new FixedWindowRateLimiter(5, 10000); // 5 requests per 10 seconds
+const limiter = new SlidingWindowRateLimiter(5, 10_000);
 
-// Simulate requests from a user
-const userId = "Shivam";
+const userId = "user1";
 
-for( let i=0;i< 20; i++){
+let request = 1;
+
+const interval = setInterval(() => {
     const allowed = limiter.allowRequest(userId);
-    console.log(`Request ${i + 1} for user ${userId}: ${allowed ? "Allowed" : "Blocked"}`);
-}
+
+    console.log(
+        `${new Date().toLocaleTimeString()} | Request ${request}: ${
+            allowed ? "✅ Allowed" : "❌ Blocked"
+        }`
+    );
+
+    request++;
+
+    if (request > 22) {
+        clearInterval(interval);
+    }
+}, 1000);
