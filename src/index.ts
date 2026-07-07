@@ -1,23 +1,25 @@
-import { SlidingWindowRateLimiter } from "./implementations/SlidingWindowRateLimiter.js";
+import { TokenBucketRateLimiter } from "./implementations/TokenBucketRateLimiter.js";
 
-const limiter = new SlidingWindowRateLimiter(5, 10_000);
+const limiter = new TokenBucketRateLimiter(5, 1);
 
-const userId = "user1";
+const userId = "Shivam";
 
 let request = 1;
 
 const interval = setInterval(() => {
-    const allowed = limiter.allowRequest(userId);
+    for (let i = 0; i < 2; i++) {
+        const allowed = limiter.allowRequest(userId);
 
-    console.log(
-        `${new Date().toLocaleTimeString()} | Request ${request}: ${
-            allowed ? "✅ Allowed" : "❌ Blocked"
-        }`
-    );
+        console.log(
+            `${new Date().toLocaleTimeString()} | Request ${request}: ${
+                allowed ? "✅ Allowed" : "❌ Blocked"
+            }`
+        );
 
-    request++;
+        request++;
+    }
 
-    if (request > 22) {
+    if (request > 20) {
         clearInterval(interval);
     }
 }, 1000);
