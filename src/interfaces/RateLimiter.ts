@@ -1,3 +1,3 @@
 export interface RateLimiter {
-  allowRequest(userId: string): boolean;
+    allowRequest(userId: string): Promise<boolean>;
 }

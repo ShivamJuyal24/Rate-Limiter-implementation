@@ -1,25 +1,28 @@
-import { TokenBucketRateLimiter } from "./implementations/TokenBucketRateLimiter.js";
+import { connectRedis, redisClient } from "./services/Redis.js";
+import { RedisFixedWindowRateLimiter } from "./distributed/RedisFixedWindow.js";
 
-const limiter = new TokenBucketRateLimiter(5, 1);
+async function main() {
+    // ✅ First connect
+    await connectRedis();
 
-const userId = "Shivam";
+    // Now Redis is ready
+    await redisClient.set("hello", "world");
 
-let request = 1;
+    console.log(await redisClient.get("hello"));
 
-const interval = setInterval(() => {
-    for (let i = 0; i < 2; i++) {
-        const allowed = limiter.allowRequest(userId);
+    const limiter = new RedisFixedWindowRateLimiter(5, 10);
+
+    const userId = "Shivam";
+
+    for (let i = 1; i <= 10; i++) {
+        const allowed = await limiter.allowRequest(userId);
 
         console.log(
-            `${new Date().toLocaleTimeString()} | Request ${request}: ${
-                allowed ? "✅ Allowed" : "❌ Blocked"
-            }`
+            `Request ${i}: ${allowed ? "✅ Allowed" : "❌ Blocked"}`
         );
-
-        request++;
     }
 
-    if (request > 20) {
-        clearInterval(interval);
-    }
-}, 1000);
+    process.exit(0);
+}
+
+main();
